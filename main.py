@@ -70,7 +70,7 @@ async def root(update: UpdateRequest):
         )
 
         await bot.send_message(
-            chat_id=update.message.chat.id, 
+            chat_id=update.callback_query.message.chat.id, 
             text="Выберите команду", 
             reply_markup=InlineKeyboardMarkup(keyboard)
         )

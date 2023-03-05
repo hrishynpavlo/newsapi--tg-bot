@@ -20,10 +20,10 @@ app = FastAPI()
 @app.post("/")
 async def handle_bot_message(update: UpdateRequest):
     bot = Bot(token=os.environ["TELEGRAM_TOKEN"])
-    
-    if update.callback_query is None  & update.message is not None: 
+
+    if update.callback_query is None and update.message is not None: 
         await handle_message(bot, update)
-    elif update.callback_query is not None & update.message is None:
+    elif update.callback_query is not None and update.message is None:
         await handle_command(bot, update)
     else:
         return { "status": "Not detected" }

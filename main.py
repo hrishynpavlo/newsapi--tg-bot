@@ -31,18 +31,24 @@ async def handle_bot_message(update: UpdateRequest):
     return { "status": "OK" }
 
 async def handle_message(bot: Bot, update: UpdateRequest):
-    await bot.send_message(
-        chat_id=update.message.chat.id, 
-        text="Выберите команду", 
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    match update.message.text:
+        case "/start":
+            await bot.send_message(
+                chat_id=update.message.chat.id, 
+                text="Выберите команду", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        case _:
+            cryptocurrencies = update.message.text.split(" ")
+            await handeLatestNews(bot=bot, chat_id=update.message.chat.id, cryptocurrencies=cryptocurrencies)
 
+    
 async def handle_command(bot: Bot, update: UpdateRequest):
     if update.callback_query.data == "/today_latest":
-        await handeLatestNews(bot, chat_id=update.callback_query.message.chat.id)
+        await handeLatestNews(bot, chat_id=update.callback_query.message.chat.id, cryptocurrencies= ["bitcoin", "ethereum", "dogecoin"])
 
-async def handeLatestNews(bot: Bot, chat_id: int):
-    data = makeNewsApiRequest()
+async def handeLatestNews(bot: Bot, chat_id: int, cryptocurrencies: list[str]):
+    data = makeNewsApiRequest(cryptocurrencies)
     articles_number = data["totalResults"]
     message = "Количество статей: <b>{0}</b>".format(articles_number)
     itteration = 1
@@ -57,19 +63,18 @@ async def handeLatestNews(bot: Bot, chat_id: int):
         parse_mode=ParseMode.HTML
     )
 
-    await bot.send_message(
-        chat_id, 
-        text="Выберите команду", 
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    # await bot.send_message(
+    #     chat_id, 
+    #     text="Выберите команду", 
+    #     reply_markup=InlineKeyboardMarkup(keyboard)
+    # )
 
-def makeNewsApiRequest() -> Any:
+def makeNewsApiRequest(cryptocurrencies: list[str]) -> Any:
     api_key = os.environ["NEWSAPI_KEY"]
-    cryptocurrencies = ["bitcoin", "ethereum", "dogecoin"]
     base_url = "https://newsapi.org/v2/everything"
     params = {
         "q": " OR ".join(cryptocurrencies),
-        "language": "en",
+        "language": "ru",
         "sortBy": "publishedAt",
         "apiKey": api_key,
         "from": (date.today() - timedelta(days=2)).isoformat()

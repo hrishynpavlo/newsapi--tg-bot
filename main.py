@@ -74,7 +74,7 @@ def makeNewsApiRequest(cryptocurrencies: list[str]) -> Any:
     base_url = "https://newsapi.org/v2/everything"
     params = {
         "q": " OR ".join(cryptocurrencies),
-        "language": "ru",
+        "language": "en",
         "sortBy": "publishedAt",
         "apiKey": api_key,
         "from": (date.today() - timedelta(days=2)).isoformat()
